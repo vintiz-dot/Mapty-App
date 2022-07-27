@@ -84,6 +84,21 @@ class App {
   constructor() {
     this._getCurrentLocation();
   }
+  _displayText() {
+    return `Type: ${
+      inputType.value[0].toUpperCase() + inputType.value.slice(1)
+    } <br>Distance: ${inputDistance.value}km <br>Duration: ${
+      inputDuration.value
+    }mins<br>  ${
+      inputType.value === 'running'
+        ? `Cadence: ${inputCadence.value}`
+        : `Elevation: ${inputElevation.value}`
+    } steps/min`;
+  }
+
+  _hideForm() {
+    form.classList.add('hidden');
+  }
 
   _toggleElevation() {
     inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
@@ -94,15 +109,6 @@ class App {
     {
       x.preventDefault();
       const { lat: lat, lng: lang } = this.#mapEvent.latlng;
-      msg = `Type: ${
-        inputType.value[0].toUpperCase() + inputType.value.slice(1)
-      } <br>Distance: ${inputDistance.value}km <br>Duration: ${
-        inputDuration.value
-      }mins<br>  ${
-        inputType.value === 'running'
-          ? `Cadence: ${inputCadence.value}`
-          : `Elevation: ${inputElevation.value}`
-      } steps/min`;
 
       // displays the information on the form on the map
       L.marker([lat, lang])
@@ -117,23 +123,17 @@ class App {
               inputType.value === 'running' ? 'running-popup' : 'cycling-popup',
           })
         )
-        .setPopupContent(msg)
+        .setPopupContent(this._displayText)
         .openPopup();
-
-      // hides the input form
-
-      form.classList.add('hidden');
-      // form.style.display = 'none';
+      this._hideForm();
     }
   }
 
   _showForm(mapE) {
     this.#mapEvent = mapE;
-
     form.classList.remove('hidden');
     inputDistance.focus();
-    btnOK.style.display = 'none';
-
+    btnOK.style.display = 'inline-block';
     inputDistance.value =
       inputDuration.value =
       inputCadence.value =
@@ -160,8 +160,8 @@ class App {
 
     // handling click on the map
     this.#map.on('click', this._showForm.bind(this));
-    form.addEventListener('submit', this._submitForm.bind(this));
     inputType.addEventListener('change', this._toggleElevation.bind(this));
+    form.addEventListener('submit', this._submitForm.bind(this));
   }
 
   _getCurrentLocation() {
