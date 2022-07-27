@@ -103,7 +103,7 @@ class App {
     this.#mapEvent = mapE;
     form.classList.remove('hidden');
     inputDistance.focus();
-    btnOK.style.display = 'inline-block';
+    btnOK.style.display = 'none';
     inputDistance.value =
       inputDuration.value =
       inputCadence.value =
