@@ -23,6 +23,7 @@ class Workout {
 }
 
 class Running extends Workout {
+  type = 'running';
   constructor(cords, duration, distance, cadence) {
     super(cords, duration, distance);
     this.cadence = cadence;
@@ -34,6 +35,7 @@ class Running extends Workout {
 }
 
 class Cycling extends Workout {
+  type = 'cycling';
   constructor(cords, duration, distance, elevation) {
     super(cords, duration, distance);
     this.elevation = elevation;
@@ -47,7 +49,8 @@ class Cycling extends Workout {
 class App {
   #map;
   #mapEvent;
-
+  #workouts = [];
+  // state;
   constructor() {
     this._getCurrentLocation();
     inputType.addEventListener('change', this._toggleElevation.bind(this));
@@ -76,27 +79,72 @@ class App {
   }
 
   _submitForm(x) {
-    {
-      x.preventDefault();
-      const { lat: lat, lng: lang } = this.#mapEvent.latlng;
+    let distance = parseFloat(inputDistance.value);
+    let duration = parseFloat(inputDuration.value);
+    let type = inputType.value;
+    let workout;
 
-      // displays the information on the form on the map
-      L.marker([lat, lang])
-        .addTo(this.#map)
-        .bindPopup(
-          L.popup({
-            maxWidth: 200,
-            minWidth: 100,
-            autoClose: false,
-            closeOnClick: false,
-            className:
-              inputType.value === 'running' ? 'running-popup' : 'cycling-popup',
-          })
-        )
-        .setPopupContent(this._displayText)
-        .openPopup();
-      this._hideForm();
+    x.preventDefault();
+    const { lat: lat, lng: lang } = this.#mapEvent.latlng;
+    function checkState(...inputs) {
+      return inputs.every(num => isFinite(num));
     }
+    function allPositive(...inputs) {
+      return inputs.every(input => isFinite(parseFloat(input)) > 0);
+    }
+    if (type === 'running') {
+      let cadence = +inputCadence.value;
+      if (
+        !checkState(distance, duration, cadence) &&
+        !allPositive(distance, duration, cadence)
+      ) {
+        console.log(
+          'check state',
+          checkState(distance, duration, cadence),
+          'all positives',
+          allPositive(distance, duration, cadence)
+        );
+        alert(`invalid input`);
+        return;
+      }
+      workout = new Running([lat, lang], duration, distance, cadence);
+      console.log('runn', workout);
+      this.#workouts.push(workout);
+      this._displayOnMap(workout);
+    }
+
+    if (type === 'cycling') {
+      let elevation = +inputElevation.value;
+      if (
+        !checkState(distance, duration, elevation) &&
+        !allPositive(distance, duration)
+      ) {
+        alert(`invalid input`);
+        return;
+      }
+      workout = new Cycling([lat, lang], duration, distance, elevation);
+      this.#workouts.push(workout);
+      this._displayOnMap(workout);
+    }
+  }
+  _displayOnMap(workout) {
+    // displays the information on the form on the map
+    L.marker(workout.cords)
+      .addTo(this.#map)
+      .bindPopup(
+        L.popup({
+          maxWidth: 200,
+          minWidth: 100,
+          autoClose: false,
+          closeOnClick: false,
+          className:
+            inputType.value === 'running' ? 'running-popup' : 'cycling-popup',
+          // className:`${workout.type}-popup`
+        })
+      )
+      .setPopupContent(this._displayText)
+      .openPopup();
+    this._hideForm();
   }
 
   _showForm(mapE) {
