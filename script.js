@@ -89,6 +89,11 @@ class App {
   #mapEvent;
   #workouts = [];
   #zoomlevel = 18;
+  #locationOptions = {
+    enableHighAccuracy: true,
+    timeout: 5000,
+    maximumAge: 0,
+  };
 
   constructor() {
     this._getCurrentLocation();
@@ -109,7 +114,7 @@ class App {
       form.insertAdjacentHTML('afterend', workout.description);
     });
   }
-  
+
   _moveToPopUp(x) {
     const targ = x.target.closest('.workout');
 
@@ -258,7 +263,8 @@ class App {
       this._loadMap.bind(this),
       function () {
         alert(`Could not determine your location`);
-      }
+      },
+      this.#locationOptions
     );
   }
 }
