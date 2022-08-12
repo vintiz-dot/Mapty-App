@@ -239,12 +239,6 @@ class App {
       subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
     }).addTo(this.#map);
 
-    // drop a marker on the stored locations
-    // L.marker([latitude, longitude])
-    //   .addTo(this.#map)
-    //   .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
-    //   .openPopup();
-
     //drops a marker on the users location
     L.marker([latitude, longitude])
       .addTo(this.#map)
